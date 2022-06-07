@@ -1,44 +1,50 @@
 <template>
   <div class="main-app">
     <router-view/>
+    <Loading v-if="loading" />
   </div>
 </template>
 
 <script>
-import store from './store'
+
 import { onMounted } from '@vue/runtime-core';
+import {platform,loading} from './functions/Utils'
+import Loading from './components/Overlays/Loading.vue'
+
 export default {
+  components:{Loading},
   setup(){
     let vh = window.innerHeight * 0.01;
     document.documentElement.style.setProperty('--vh', `${vh}px`);
     if(window.innerWidth<=600){
-      store.state.platform = 'mobile'
+      platform.value = 'mobile'
     }
     else if(window.innerWidth>600 && window.innerWidth<1200){
-      store.state.platform = 'tablet'
+      platform.value = 'tablet'
     }
     else{
-      store.state.platform = 'desktop'
+      platform.value = 'desktop'
     }
 
     onMounted(()=>{
       window.addEventListener('resize', () => {
         if(window.innerWidth<=600){
-          store.state.platform = 'mobile'
+          platform.value = 'mobile'
         }
         else if(window.innerWidth>600 && window.innerWidth<1200){
-          store.state.platform = 'tablet'
+          platform.value = 'tablet'
         }
         else{
-          store.state.platform = 'desktop'
+          platform.value = 'desktop'
         }
-
 
         let vh = window.innerHeight * 0.01;
         document.documentElement.style.setProperty('--vh', `${vh}px`);
         
       });
     })
+  
+    return {loading}
   }
 }
 </script>
