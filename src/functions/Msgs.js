@@ -3,13 +3,12 @@ import Swal from 'sweetalert2'
 
 const slide_pop_error = (text , duration = 2500) => {
     ElNotification({
-        title: "שגיאה!",
+        title: "Error!",
         type: "error",
         message: text,
         showClose: false,
-        position: 'top-left',
+        position: 'top-right',
         duration: duration,
-        zIndex: '10000000'
     });
 
     
@@ -17,26 +16,25 @@ const slide_pop_error = (text , duration = 2500) => {
 
 const slide_pop_info = (text , duration = 2500) => {
     ElNotification({
-        title: "נא לשים לב!",
+        title: "Please pay attention!",
         type: "info",
         message: text,
         showClose: false,
-        position: 'top-left',
+        position: 'top-right',
         duration: duration,
-        zIndex: '10000000'
+        
     });
     document.querySelectorAll('.el-icon-info').forEach(icon=>icon.style.color='grey')
 }
 
 const slide_pop_successs = (text, duration = 2500) => {
     ElNotification({
-        title: "הצלחה",
+        title: "Success",
         type: "success",
         message: text,
         showClose: false,
         duration: duration,
-        position: 'top-left',
-        zIndex: '10000000'
+        position: 'top-right',
     });
     document.querySelectorAll('.el-icon-success').forEach(icon=>icon.style.color='#28c76f')
 }

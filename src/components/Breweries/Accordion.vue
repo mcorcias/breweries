@@ -11,78 +11,74 @@
             </div>
             <div>
                 <h4>
-                    <i ref="arrow_icon" @click="handle_show_content" class="material-icons arrow-icon down">expand_more</i>
+                    <i ref="arrow_icon" @click="handle_show_content" class="material-icons icon arrow-icon">expand_more</i>
                 </h4>
             </div>
+            <i @click="$emit('add_brewery')" class="material-icons icon add-icon">add</i>
         </div>
-        <div v-if="show_content" class="accrordion-content slide-in-right">
-            <!-- <table class="mobile-table">
+        <div v-if="show_content && (platform=='desktop' || platform=='tablet')" class="accrordion-content slide-in-right">
+
+            <table>
                 <tr>
-                    <th>תאריך</th>
-                    <td v-if="!lid.created_at.seconds">{{new Date(lid.created_at).toLocaleDateString('he')}}</td>
-                    <td v-else>{{new Date(lid.created_at.seconds*1000).toLocaleDateString('he')}}</td>
+                    <th>Company Id</th>
+                    <th>City</th>
+                    <th>street</th>
+                    <th>Actions</th>
+                </tr>
+                <template v-for="brewerie in state.breweries" :key="brewerie.id">
+                    <tr>
+                        <td>{{brewerie.id}}</td>
+                        <td>{{brewerie.city}}</td>
+                        <td v-if="brewerie.street">{{brewerie.street}}</td>
+                        <td v-else>Unknown</td>
+                        <td>
+                            <i class="material-icons icon delete-icon">delete</i>
+                            <i class="material-icons icon edit-icon">edit</i>
+                        </td>
+                    </tr>
+                </template>
+            </table>
+        </div>
+        <div v-if="show_content && platform=='mobile'" class="accrordion-content slide-in-right">
+         <template v-for="brewerie in state.breweries" :key="brewerie.id">
+            <table class="mobile-table">
+                <tr>
+                    <th style="width:30%;">Company Id</th>
+                    <td>{{brewerie.id}}</td>
                 </tr>
                 <tr>
-                    <th>הלקוח/עסק</th>
-                    <td>{{lid.business_name}}</td>
+                    <th>City</th>
+                    <td>{{brewerie.city}}</td>
                 </tr>
                 <tr>
-                    <th> המנהל</th>
-                    <td>{{lid.manager_name}}</td>
+                    <th>Street</th>
+                    <td v-if="brewerie.street">{{brewerie.street}}</td>
+                    <td v-else>Unknown</td>
                 </tr>
                 <tr>
-                    <th>כתובת</th>
-                    <td>{{lid.address}}</td>
-                </tr>
-                <tr>
-                    <th>עיר</th>
-                    <td>{{lid.city}}</td>
-                </tr>
-                <tr>
-                    <th>טלפון</th>
-                    <td>{{lid.phone}}</td>
-                </tr>
-                <tr>
-                    <th>הערות</th>
-                    <td v-if="lid.notes">{{lid.notes}}</td>
-                    <td v-else>לא צויינו הערות</td>
-                </tr>
-                <tr>
-                    <th> סוכן</th>
-                    <td>{{lid.agent_id}}</td>
-                </tr>
-                <tr>
-                    <th>סטטוס</th>
-                    <td v-if="lid.status=='pending'" style="color:#f5953b;">
-                        <p>ממתין לאישור</p>
-                        <small style="color:#333;">{{lid.pending_string}}</small>
-                    </td>
-                    <td v-if="lid.status=='open'" style="color:green;">פתוח</td>
-                    <td v-if="lid.status=='close'" style="color:#7367f0;">
-                        <p>סגור</p>
-                        <small style="color:#333;">{{lid.close_string}}</small>
-                    </td>
-                    <td v-if="lid.status=='canceled'" style="color:red;">
-                        <p>בוטל</p>
-                        <small style="color:#333;">{{lid.canceled_string}}</small>
-                    </td>
-                    <td v-if="lid.status=='e-relevant'" style="color:#63707A">
-                        <p>לא רלוונטי</p>
-                        <small style="color:#333;">{{lid.e_relevant_string}}</small>
+                    <th>Actions</th>
+                    <td>
+                        <i class="material-icons icon delete-icon">delete</i>
+                        <i class="material-icons icon edit-icon">edit</i>
                     </td>
                 </tr>
-            </table> -->
+            </table>
+         </template>
         </div>
     </div>
 </template>
 
 <script>
 import { ref } from '@vue/reactivity'
+import {platform} from '../../functions/Utils'
 export default {
     props:['state'],
+    emits:['add_brewery'],
     setup(){
         const arrow_icon = ref()
         const show_content = ref(false)
+
+        
 
         const handle_show_content = ()=>{
            arrow_icon.value.classList.toggle("up");
@@ -91,7 +87,8 @@ export default {
         return{
             handle_show_content,
             show_content,
-            arrow_icon
+            arrow_icon,
+            platform,
         }
     }
 }
@@ -101,19 +98,21 @@ export default {
     .accrordion{
         width: 100%;
         height: auto;
-        margin-bottom: 5px; 
+        margin-bottom: 5px;
+        
     }
     .accrordion-header{
+        position: relative;
         width: 100%;
         height: 50px;
         background:var(--secondary);
         border-radius: 5px;
         box-shadow: 0px 0px 3px rgba(0, 0, 0, 0.7);
         display: flex;
-        
     }
     .accrordion-header h4{
         font-weight: 400;
+        color: #fff;
     }
     .accrordion-header div{
         width: calc(100% / 3);
@@ -123,10 +122,15 @@ export default {
         justify-content: center;
         align-items: center;
         color: #333;
+        color: #fff; 
     }
-    .arrow-icon{
+    .icon{
+        cursor: pointer;
+        user-select: none;
         font-size: 30px;
         cursor: pointer;
+    }
+    .arrow-icon{
         transition: all 0.2s ease-in;
     }
     .arrow-icon.up{
@@ -134,7 +138,7 @@ export default {
     }
     .accrordion-content{
         width: 100%;
-        height: 500px;
+        
     }
     table {
         border-collapse: collapse;
@@ -156,11 +160,14 @@ export default {
         padding-top: 2px;
         padding-bottom: 2px;
         text-align: center;
-        background-color: var(--purple);
+        background-color: var(--secondary);
         color: white;
         position: sticky;
         top: 0;
         font-size: 20px;
+    }
+    .mobile-table{
+        margin-bottom: 5px;
     }
 
     .slide-in-right {
@@ -191,6 +198,21 @@ export default {
                 transform: translateX(0);
         opacity: 1;
     }
+    }
+
+    .edit-icon{
+        color: var(--warning);
+        margin-left: 10px;
+    }
+    .delete-icon{
+        color: var(--danger);
+    }
+    .add-icon{
+        position: absolute;
+        color: var(--success);
+        top: 50%;
+        transform: translateY(-50%);
+        right: 10px;
     }
 
 </style>

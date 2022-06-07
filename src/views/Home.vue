@@ -6,34 +6,61 @@
        </div>
        <div class="home-main-content">
          <template v-for="state in states" :key="state.stateName">
-           <Accordion :state="state"/>
+           <Accordion @add_brewery="handle_show_dialog_to_create_brewery(state)" :state="state"/>
          </template>
        </div>
      </div>
+
+     <CreateModifyBrewery @close="handle_close_dialog" :create="create" :edit="edit" v-if="show_dialog" />
   </div>
 </template>
 
 <script>
-import { watch } from 'vue-demi'
+import { ref, watch } from 'vue-demi'
 import {error,states,mainObj} from '../functions/Breweries_api'
 import Accordion from '../components/Breweries/Accordion.vue'
+import CreateModifyBrewery from '../components/Breweries/CreateModifyBrewery.vue'
 import {alert} from '../functions/Msgs'
 export default {
   name: 'Home',
-  components:{Accordion},
+  components:{Accordion,CreateModifyBrewery},
   setup(){
+    const show_dialog = ref(false)
+    const create = ref(null)
+    const edit = ref(null)
+
+    const handle_show_dialog_to_create_brewery = (state)=>{
+      edit.value = null
+      create.value = state
+      show_dialog.value = true
+    }
+
+    const handle_close_dialog = ()=>{
+      edit.value = null
+      create.value = null
+      show_dialog.value = false
+    }
 
     watch(error,()=>{
       if(error.value) alert('error','Something Wrong!',error.value)
     })
 
-    return{error,states}
+    return{
+      handle_show_dialog_to_create_brewery,
+      handle_close_dialog,
+      error,
+      states,
+      show_dialog,
+      create,
+      edit,
+    }
   }
 }
 </script>
 
 <style scoped>
   .home{
+    position: relative;
     width: 100%;
     height: 100%;
     padding: 5px;

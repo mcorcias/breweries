@@ -10,40 +10,19 @@
 import { onMounted } from '@vue/runtime-core';
 import {platform,loading} from './functions/Utils'
 import Loading from './components/Overlays/Loading.vue'
+import {feet_mobile_screen} from './functions/Utils'
 
 export default {
   components:{Loading},
   setup(){
-    let vh = window.innerHeight * 0.01;
-    document.documentElement.style.setProperty('--vh', `${vh}px`);
-    if(window.innerWidth<=600){
-      platform.value = 'mobile'
-    }
-    else if(window.innerWidth>600 && window.innerWidth<1200){
-      platform.value = 'tablet'
-    }
-    else{
-      platform.value = 'desktop'
-    }
+    feet_mobile_screen()
 
     onMounted(()=>{
       window.addEventListener('resize', () => {
-        if(window.innerWidth<=600){
-          platform.value = 'mobile'
-        }
-        else if(window.innerWidth>600 && window.innerWidth<1200){
-          platform.value = 'tablet'
-        }
-        else{
-          platform.value = 'desktop'
-        }
-
-        let vh = window.innerHeight * 0.01;
-        document.documentElement.style.setProperty('--vh', `${vh}px`);
-        
+       feet_mobile_screen() 
       });
     })
-  
+                       
     return {loading}
   }
 }
@@ -70,13 +49,13 @@ export default {
     padding: 0;
     box-sizing: border-box; 
     font-family: 'Rubik', sans-serif;
-    color: #fff;
   }
   .main-app{
     position: relative;
     width: 100%;
     height: calc(var(--vh, 1vh) * 100);
     background: var(--main);
+    color: #fff;
   }
   ::-webkit-scrollbar{
   display: block;
