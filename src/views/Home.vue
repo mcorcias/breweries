@@ -5,13 +5,18 @@
          <h1>Breweries</h1>
        </div>
        <div class="home-main-content">
+         <h1 style="text-align:center;" v-if="states.length == 0 ">Unfortunately there are no records to display</h1>
          <template v-for="state in states" :key="state.stateName">
-           <Accordion @add_brewery="handle_show_dialog_to_create_brewery(state)" :state="state"/>
+           <Accordion @add_brewery="handle_create(state)" 
+           @edit_brewery="handle_edit"
+           :state="state"/>
          </template>
        </div>
      </div>
 
-     <CreateModifyBrewery @close="handle_close_dialog" :create="create" :edit="edit" v-if="show_dialog" />
+     <CreateModifyBrewery @close="handle_close_dialog" :create="create" 
+     :edit="edit" :edit_index="edit_index" v-if="show_dialog" />
+
   </div>
 </template>
 
@@ -28,14 +33,21 @@ export default {
     const show_dialog = ref(false)
     const create = ref(null)
     const edit = ref(null)
+    const edit_index = ref(0)
 
-    const handle_show_dialog_to_create_brewery = (state)=>{
+    const handle_edit = (data) => {
+      create.value = null
+      edit.value = data.state
+      edit_index.value = data.index
+      show_dialog.value = true
+    }
+    const handle_create = (state) => {
       edit.value = null
       create.value = state
       show_dialog.value = true
     }
 
-    const handle_close_dialog = ()=>{
+    const handle_close_dialog = () =>{
       edit.value = null
       create.value = null
       show_dialog.value = false
@@ -46,13 +58,15 @@ export default {
     })
 
     return{
-      handle_show_dialog_to_create_brewery,
+      handle_create,
       handle_close_dialog,
+      handle_edit,
       error,
       states,
       show_dialog,
       create,
       edit,
+      edit_index,
     }
   }
 }
@@ -70,8 +84,6 @@ export default {
     max-width: 1200px;
     height: 100%;
     margin: 0 auto;
-    overflow: hidden;
-    overflow-y: auto;
   }
   .home-main-header{
     width: 100%;
@@ -82,7 +94,7 @@ export default {
     text-align: center;
     background: var(--secondary);
     border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0, 0, 0, 0.26);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.4);
   }
   .home-main-header h1{
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
@@ -91,5 +103,7 @@ export default {
     padding: 5px 0;
     width: 100%;
     height: calc(100% - 50px);
+    overflow: hidden;
+    overflow-y: auto;
   }
 </style>

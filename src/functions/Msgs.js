@@ -39,7 +39,7 @@ const slide_pop_successs = (text, duration = 2500) => {
     document.querySelectorAll('.el-icon-success').forEach(icon=>icon.style.color='#28c76f')
 }
 
-const alert=(icon,title,text)=>{
+const alert=(icon,title,text) => {
     return Swal.fire({
         icon,
         title,
@@ -47,25 +47,25 @@ const alert=(icon,title,text)=>{
     })
 }
 
-const alert_confirm=(title)=>{
+const alert_confirm=(title) => {
     return Swal.fire({
         title,
         icon: 'question',
         iconHtml: '?',
-        confirmButtonText: 'כן',
-        cancelButtonText: 'לא',
+        confirmButtonText: 'Ok',
+        cancelButtonText: 'Cancel',
         showCancelButton: true,
         showCloseButton: true
       })
 }
 
-const alert_confirm_info=(title)=>{
+const alert_confirm_info=(title) => {
     return Swal.fire({
         title,
         icon: 'question',
         iconHtml: '?',
-        confirmButtonText: 'המשך',
-        cancelButtonText: 'ביטול',
+        confirmButtonText: 'Continue',
+        cancelButtonText: 'Cancel',
         showCancelButton: true,
         showCloseButton: true
       })

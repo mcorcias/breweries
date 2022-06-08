@@ -12,7 +12,7 @@
             <div style='left:120px;top:120px;animation-delay:0.9259259259259258s'></div>
             </div>
         </div>
-        <p class="loading-text">טוען...</p>
+        <p class="loading-text">Loading States...</p>
     </div>
 </template>
 

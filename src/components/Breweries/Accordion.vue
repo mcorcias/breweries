@@ -17,30 +17,31 @@
             <i @click="$emit('add_brewery')" class="material-icons icon add-icon">add</i>
         </div>
         <div v-if="show_content && (platform=='desktop' || platform=='tablet')" class="accrordion-content slide-in-right">
-
-            <table>
+            <h1 style="text-align:center;" v-if="state.breweries.length==0">No breweries</h1>
+            <table v-if="state.breweries.length>0">
                 <tr>
                     <th>Company Id</th>
                     <th>City</th>
                     <th>street</th>
                     <th>Actions</th>
                 </tr>
-                <template v-for="brewerie in state.breweries" :key="brewerie.id">
+                <template v-for="(brewerie,index) in state.breweries" :key="brewerie.id">
                     <tr>
                         <td>{{brewerie.id}}</td>
                         <td>{{brewerie.city}}</td>
                         <td v-if="brewerie.street">{{brewerie.street}}</td>
                         <td v-else>Unknown</td>
                         <td>
-                            <i class="material-icons icon delete-icon">delete</i>
-                            <i class="material-icons icon edit-icon">edit</i>
+                            <i @click="handle_delete(brewerie,index)" class="material-icons icon delete-icon">delete</i>
+                            <i @click="$emit('edit_brewery',{state,index})" class="material-icons icon edit-icon">edit</i>
                         </td>
                     </tr>
                 </template>
             </table>
         </div>
         <div v-if="show_content && platform=='mobile'" class="accrordion-content slide-in-right">
-         <template v-for="brewerie in state.breweries" :key="brewerie.id">
+         <h1 style="text-align:center;" v-if="state.breweries.length==0">No breweries</h1>
+         <template v-for="(brewerie,index) in state.breweries" :key="brewerie.id">
             <table class="mobile-table">
                 <tr>
                     <th style="width:30%;">Company Id</th>
@@ -58,8 +59,8 @@
                 <tr>
                     <th>Actions</th>
                     <td>
-                        <i class="material-icons icon delete-icon">delete</i>
-                        <i class="material-icons icon edit-icon">edit</i>
+                        <i @click="handle_delete(brewerie,index)" class="material-icons icon delete-icon">delete</i>
+                        <i @click="$emit('edit_brewery',{state,index})" class="material-icons icon edit-icon">edit</i>
                     </td>
                 </tr>
             </table>
@@ -71,21 +72,30 @@
 <script>
 import { ref } from '@vue/reactivity'
 import {platform} from '../../functions/Utils'
+import {alert_confirm} from '../../functions/Msgs'
 export default {
     props:['state'],
-    emits:['add_brewery'],
-    setup(){
+    setup(props){
         const arrow_icon = ref()
         const show_content = ref(false)
 
-        
+        const handle_delete = (brewerie,index) => {
+            alert_confirm(`Remove ${brewerie.id}`)
+            .then((res)=>{
+                if(res.isConfirmed){
+                    props.state.breweries.splice(index,1)
+                }
+            })
+        }
 
-        const handle_show_content = ()=>{
+        const handle_show_content = () => {
            arrow_icon.value.classList.toggle("up");
            show_content.value = !show_content.value
         }
+
         return{
             handle_show_content,
+            handle_delete,
             show_content,
             arrow_icon,
             platform,
@@ -121,7 +131,6 @@ export default {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        color: #333;
         color: #fff; 
     }
     .icon{
@@ -165,6 +174,11 @@ export default {
         position: sticky;
         top: 0;
         font-size: 20px;
+    }
+    @media screen and (max-width: 600px) {
+        table th,table td{
+            font-size: 15px;
+        }
     }
     .mobile-table{
         margin-bottom: 5px;

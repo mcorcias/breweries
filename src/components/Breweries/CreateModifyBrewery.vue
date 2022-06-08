@@ -5,38 +5,38 @@
               <div @click="$emit('close')" class="exit-btn">
                   <i class="material-icons">close</i>
               </div>
-              <h3 v-if="create">Create brewery for {{create.stateName}} state</h3>
-              <h3 v-if="edit">Update brewery for {{edit.stateName}} state</h3>
+              <h3 v-if="create">Create brewery for {{create.stateName}}</h3>
+              <h3 v-if="edit">Edit brewery for {{edit.stateName}}</h3>
           </div>
           <div class="create-modify-brewery-dialog-content">
               <div class="create-modify-brewery-dialog-content-field">
                   <h3>Company Id Name <span style="color:red;">*</span></h3>
-                  <el-input v-model.trim="values.id" placeholder="Company Id Name" />
+                  <el-input v-model="values.id" placeholder="Company Id Name" :disabled="edit?true:false" />
               </div>
               <div class="create-modify-brewery-dialog-content-field">
                   <h3>City <span style="color:red;">*</span></h3>
-                  <el-input v-model.trim="values.city" placeholder="City" />
+                  <el-input v-model="values.city" placeholder="City" />
               </div>
               <div class="create-modify-brewery-dialog-content-field">
                   <h3>Street</h3>
-                  <el-input style="text-transform: uppercase;" v-model.trim="values.street" placeholder="Street" />
+                  <el-input style="text-transform: uppercase;" v-model="values.street" placeholder="Street" />
               </div>
           </div>
           <div class="create-modify-brewery-dialog-footer">
-              <el-button @click="handle_create_brewery" v-if="create" style="width:50%" type="success">Create</el-button>
-              <el-button v-if="edit" style="width:50%" type="warning">Update</el-button>
+              <el-button @click="handle_submit" v-if="create" style="width:50%" type="success">Create</el-button>
+              <el-button @click="handle_submit" v-if="edit" style="width:50%" type="warning">Update</el-button>
           </div>
-
       </div>
   </div>
 </template>
 
 <script>
 import { ref } from 'vue-demi'
-import {slide_pop_error} from '../../functions/Msgs'
+import {slide_pop_error,alert} from '../../functions/Msgs'
+import {concat_string_with_dash,capitalize_words} from '../../functions/Utils'
 export default {
-    props:['create','edit'],
-    setup(props){
+    props:['create','edit','edit_index'],
+    setup(props,{emit}){
         const err_msg = ref('')
 
         const values = ref({
@@ -44,7 +44,6 @@ export default {
             city:'',
             street:null
         })
-
 
         const validation = ()=>{
             for (const [key, value] of Object.entries(values.value)) {
@@ -63,26 +62,74 @@ export default {
                         break;
                 }
             }
-
             return true
         }
-        const handle_create_brewery = ()=>{
-            if(!validation()){
-                slide_pop_error(err_msg.value)
-            }else{
-                console.log('okay');
+
+        const check_if_brewery_exist = (id) => {
+            const index = props.create.breweries.findIndex(brewery=>brewery.id == id)
+            if(index!=-1) return false
+            return true
+        }
+
+        const handle_capitalize = () => {
+            for (const [key, value] of Object.entries(values.value)) {
+                switch (key) {
+                    case 'city':
+                        values.value[key] = capitalize_words(value)
+                        break;
+                    case 'street':
+                        if(value){
+                            values.value[key] = capitalize_words(value)
+                        }
+                        break;
+                }
             }
         }
 
-
-        function capitalizeFirstLetter(string) {
-            return string.charAt(0).toUpperCase() + string.slice(1);
+        const orgenize_data_before_submit = () => {
+            handle_capitalize()
+            if(props.create){
+                props.create.breweries.push(values.value)
+                props.create.breweries.sort((a,b)=>(a.city > b.city) ? 1 : ((b.city > a.city) ? -1 : 0))
+            }
+            if(props.edit){
+                props.edit.breweries[props.edit_index] = values.value
+                props.edit.breweries.sort((a,b)=>(a.city > b.city) ? 1 : ((b.city > a.city) ? -1 : 0))
+            }
         }
 
+        const handle_submit = () => {
+            if(!validation()){
+                slide_pop_error(err_msg.value)
+                return
+            }
+            values.value.id = concat_string_with_dash(values.value.id)
 
+            if(props.create && !check_if_brewery_exist(values.value.id)){
+                slide_pop_error('This brewery already exist!')
+                return
+            }
+
+            orgenize_data_before_submit()
+
+            alert('success','Success',`The brewery ${values.value.id} ${props.edit?'updated':'added'} 
+            successfully in ${props.edit?props.edit.stateName:props.create.stateName}`)
+            .then(()=>{
+                emit('close')
+            })
+        }
+
+        const init = () => {
+            if(props.edit){
+                const clone_brewery = JSON.parse(JSON.stringify(props.edit.breweries[props.edit_index]))
+                values.value = clone_brewery
+            }
+        }
+
+        init()
 
         return{
-            handle_create_brewery,
+            handle_submit,
             values,
             err_msg,
         }
