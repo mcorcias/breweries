@@ -14,7 +14,7 @@
        </div>
      </div>
 
-     <CreateModifyBrewery @close="handle_close_dialog" :create="create" 
+     <CreateModifyBrewery @close="handle_close_dialog" :state="state" 
      :edit="edit" :edit_index="edit_index" v-if="show_dialog" />
 
   </div>
@@ -31,25 +31,25 @@ export default {
   components:{Accordion,CreateModifyBrewery},
   setup(){
     const show_dialog = ref(false)
-    const create = ref(null)
-    const edit = ref(null)
+    const state = ref(null)
+    const edit = ref(false)
     const edit_index = ref(0)
 
     const handle_edit = (data) => {
-      create.value = null
-      edit.value = data.state
+      state.value = data.state
+      edit.value = true
       edit_index.value = data.index
       show_dialog.value = true
     }
-    const handle_create = (state) => {
-      edit.value = null
-      create.value = state
+    const handle_create = (_state) => {
+      edit.value = false
+      state.value = _state
       show_dialog.value = true
     }
 
     const handle_close_dialog = () =>{
-      edit.value = null
-      create.value = null
+      edit.value = false
+      state.value = null
       show_dialog.value = false
     }
 
@@ -64,7 +64,7 @@ export default {
       error,
       states,
       show_dialog,
-      create,
+      state,
       edit,
       edit_index,
     }

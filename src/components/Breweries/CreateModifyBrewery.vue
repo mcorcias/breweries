@@ -5,8 +5,8 @@
               <div @click="$emit('close')" class="exit-btn">
                   <i class="material-icons">close</i>
               </div>
-              <h3 v-if="create">Create brewery for {{create.stateName}}</h3>
-              <h3 v-if="edit">Edit brewery for {{edit.stateName}}</h3>
+              <h3 v-if="!edit">Create brewery for {{state.stateName}}</h3>
+              <h3 v-if="edit">Edit brewery for {{state.stateName}}</h3>
           </div>
           <div class="create-modify-brewery-dialog-content">
               <div class="create-modify-brewery-dialog-content-field">
@@ -23,7 +23,7 @@
               </div>
           </div>
           <div class="create-modify-brewery-dialog-footer">
-              <el-button @click="handle_submit" v-if="create" style="width:50%" type="success">Create</el-button>
+              <el-button @click="handle_submit" v-if="!edit" style="width:50%" type="success">Create</el-button>
               <el-button @click="handle_submit" v-if="edit" style="width:50%" type="warning">Update</el-button>
           </div>
       </div>
@@ -35,7 +35,7 @@ import { ref } from 'vue-demi'
 import {slide_pop_error,alert} from '../../functions/Msgs'
 import {concat_string_with_dash,capitalize_words} from '../../functions/Utils'
 export default {
-    props:['create','edit','edit_index'],
+    props:['state','edit','edit_index'],
     setup(props,{emit}){
         const err_msg = ref('')
 
@@ -66,7 +66,7 @@ export default {
         }
 
         const check_if_brewery_exist = (id) => {
-            const index = props.create.breweries.findIndex(brewery=>brewery.id == id)
+            const index = props.state.breweries.findIndex(brewery=>brewery.id == id)
             if(index!=-1) return false
             return true
         }
@@ -88,14 +88,13 @@ export default {
 
         const orgenize_data_before_submit = () => {
             handle_capitalize()
-            if(props.create){
-                props.create.breweries.push(values.value)
-                props.create.breweries.sort((a,b)=>(a.city > b.city) ? 1 : ((b.city > a.city) ? -1 : 0))
+            if(!props.edit){
+                props.state.breweries.push(values.value)
             }
-            if(props.edit){
-                props.edit.breweries[props.edit_index] = values.value
-                props.edit.breweries.sort((a,b)=>(a.city > b.city) ? 1 : ((b.city > a.city) ? -1 : 0))
+            else{
+                props.state.breweries[props.edit_index] = values.value
             }
+            props.state.breweries.sort((a,b)=>(a.city > b.city) ? 1 : ((b.city > a.city) ? -1 : 0))
         }
 
         const handle_submit = () => {
@@ -105,7 +104,7 @@ export default {
             }
             values.value.id = concat_string_with_dash(values.value.id)
 
-            if(props.create && !check_if_brewery_exist(values.value.id)){
+            if(!props.edit && !check_if_brewery_exist(values.value.id)){
                 slide_pop_error('This brewery already exist!')
                 return
             }
@@ -113,7 +112,7 @@ export default {
             orgenize_data_before_submit()
 
             alert('success','Success',`The brewery ${values.value.id} ${props.edit?'updated':'added'} 
-            successfully in ${props.edit?props.edit.stateName:props.create.stateName}`)
+            successfully in ${props.state.stateName}`)
             .then(()=>{
                 emit('close')
             })
@@ -121,7 +120,7 @@ export default {
 
         const init = () => {
             if(props.edit){
-                const clone_brewery = JSON.parse(JSON.stringify(props.edit.breweries[props.edit_index]))
+                const clone_brewery = JSON.parse(JSON.stringify(props.state.breweries[props.edit_index]))
                 values.value = clone_brewery
             }
         }
